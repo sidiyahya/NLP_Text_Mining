@@ -9,6 +9,10 @@ def get_pair_words(sim_mat):
     pair_words = pair_words.sort_values('Value')
     return pair_words
 
+def similarity_matrix(word_vectors, df_vocab):
+    sim_mat = pd.DataFrame(cosine_similarity(word_vectors), columns=df_vocab, index=df_vocab)
+    print(sim_mat.shape)
+    return sim_mat
 
 def compute_column_metrics(column_labels, word_vectors, df_vocab, alphas=None):
     if alphas is None:
@@ -63,8 +67,3 @@ def compute_column_metrics(column_labels, word_vectors, df_vocab, alphas=None):
     return accs, all_fp_words, all_fn_words
 
 
-def similarity_matrix(word_vectors, df_vocab):
-    sim_mat = pd.DataFrame(cosine_similarity(word_vectors), columns=df_vocab, index=df_vocab)
-    print(sim_mat.shape)
-
-    return sim_mat
