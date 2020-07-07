@@ -25,7 +25,7 @@ def get_datasets_built(dataset_name):
         data.columns = ["class", "text"]
 
 
-    elif(dataset_name in ['classic3', 'data']):
+    elif(dataset_name in ['classic3', 'classic4']):
         # ---------------Dataset CLASSIC4 & CLASSIC3----------------------------
         ##------------BUILDING THE DATASET
         list_ = []

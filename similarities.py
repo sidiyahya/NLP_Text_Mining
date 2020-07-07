@@ -11,7 +11,7 @@ def execute_column_evaluations(coclust_column_labels, word_2vec_model, vocabular
     if thresh is None:
         thresh = [0.85, 0.7, 0.45]
     simit_matrix = similarity_matrix(word_2vec_model, vocabulary)
-    accuracy = []
+    accuracy_list = []
     fp_list = []
     fn_list = []
     labels = np.unique(coclust_column_labels)
@@ -35,4 +35,19 @@ def execute_column_evaluations(coclust_column_labels, word_2vec_model, vocabular
                 temp = [key, value]
                 fp_dictlist.append(temp)"""
             fp_list += [[label, alpha, fp_dict]]
+
+        for vocab in vocabulary:
+            label = coclust_column_labels[vocab]
+            same_cluster_obs = np.where(coclust_column_labels == label)[0]
+            diffetrent_cluster_obs = simit_matrix.iloc[~same_cluster_obs, :].iloc[:, vocab]
+            TN += len(diffetrent_cluster_obs[diffetrent_cluster_obs[:] < alpha])
+            fn_dict = list(diffetrent_cluster_obs[diffetrent_cluster_obs[:] >= alpha][:L].to_dict().items())
+            FN += len(fn_dict)
+
+
+        fn_list += [[alpha, fn_dict]]
+
+        accuracy = (TP + TN) / (TP + TN + FN + FP)
+        accuracy_list.append(accuracy)
+    return accuracy_list, fp_list, fn_list
 

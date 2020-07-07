@@ -8,7 +8,7 @@ import numpy as np
 from scipy.io import loadmat
 
 
-def execute_coclustering(tf_idf, method, n_clusters, return_pred_rows=True, max_iteration=300):
+def execute_coclustering(tf_idf, method, n_clusters, max_iteration=300):
     global model
     print("---executing ",method)
     if(method=="CoclustInfo"):
@@ -20,10 +20,8 @@ def execute_coclustering(tf_idf, method, n_clusters, return_pred_rows=True, max_
     model.fit(tf_idf)
     pred_row_labels = model.row_labels_
     pred_column_labels = model.column_labels_
-    if(return_pred_rows):
-        return pred_row_labels
-    else:
-        return pred_column_labels
+
+    return pred_row_labels, pred_column_labels
 
 #%%
 
@@ -37,7 +35,8 @@ def clustering_quality(true_row_labels, predicted_row_labels):
 
 #%%
 
-def execute_clustering_evaluation(raw_data, true_labels, row_labels=True,use_words_thresh=True, max_iteration=300):
+def execute_clustering_evaluation(raw_data, true_labels, use_words_thresh=True, max_iteration=300):
+    col_labels = []
     global tfidf_vectorizer
     clustering_eval = []
     n_labels = len(np.unique(true_labels))
@@ -48,7 +47,8 @@ def execute_clustering_evaluation(raw_data, true_labels, row_labels=True,use_wor
     tfidf_matrix = tfidf_vectorizer.fit_transform(raw_data)
     colustering_methods = ["CoclustMod", "CoclustInfo", "CoclustModFuzzy"]
     for algo in colustering_methods:
-        pred_labels = execute_coclustering(tfidf_matrix, algo, n_labels, return_pred_rows=row_labels, max_iteration=max_iteration)
-        nmi_, ari_, acc_ = clustering_quality(true_labels, pred_labels)
+        pred_label_row, pred_label_col = execute_coclustering(tfidf_matrix, algo, n_labels, max_iteration=max_iteration)
+        col_labels += [[pred_label_col]]
+        nmi_, ari_, acc_ = clustering_quality(true_labels, pred_label_row)
         clustering_eval += [[algo, nmi_, ari_, acc_]]
-    return clustering_eval
+    return clustering_eval, col_labels
